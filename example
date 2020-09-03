@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+use Store\Model\Pricing\ProductPrice;
+use Store\Model\Pricing\PricingTable;
+use Store\Model\Terminal;
+
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/data/sample.php';
+
+$pricingTable = new PricingTable();
+foreach ($prices as $price) {
+    $productPrice = new ProductPrice($price['code']);
+    if ($price['single']) {
+        $productPrice->setSinglePrice($price['single']);
+    }
+    if ($price['bulk']) {
+        $productPrice->setBulkPrice($price['bulk'], $price['bulkAmount']);
+    }
+    $pricingTable->addProductPrice($productPrice);
+}
+
+$terminal = new Terminal($pricingTable);
+foreach ($scanItems as $code) {
+    $terminal->scanItem($code);
+}
+
+echo $terminal->getTotal() . PHP_EOL;
